@@ -1,3 +1,9 @@
+.vscode
+*-env/
+tmp/
+.DS_Store
+testimonials
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

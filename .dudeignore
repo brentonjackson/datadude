@@ -1,0 +1,8 @@
+.DS_Store
+datadude-env
+__pycache__
+tests
+node_modules
+tmp
+.vscode
+testimonials

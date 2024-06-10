@@ -1,0 +1,2 @@
+- make directory scanner use datadude's .dudeignore file if none is present already
+- fix RAG. it frequently has trouble loading the data 
