@@ -154,8 +154,10 @@ After a ton of testing from the last experiment to this one, I used about 10-12 
 
 #### Conclusion:
 I uploaded Python files as well as Markdown files. Uploading the Python file content in the context is extremely useful, much more useful than file metadata and a good amount more than markdown. It allowed me to really look at the functions and ask about it as if I had a genius tutor over my shoulder the whole way. I was even able to argue with it and change its mind, and it still gave very valuable positions no matter the side it was on. This is useful enough as it is right now to me. It's in a great spot.
+Even still, there are issues with using all the context that I uploaded. For example, it will allow me to list some of the react components, but ignores others that are outside of a specific range in the document. It's as if it's only selecting a small window.
+There must be an issue with how retrieval is being done with the files uploaded. I shall address this in the next experiment.
 
-## Experiment 6 - Making Retrieval Augmented Generation More Reliable
+## Experiment 6 - Increase chunking size for vector store file ✅
 
 #### Setup:
 - Flask server brokers messages between client/AI Assistant
@@ -166,9 +168,90 @@ I uploaded Python files as well as Markdown files. Uploading the Python file con
 - Be able to use the previous list to go into each file and do something with the file contents.
 
 #### Procedure:
-1. Add content to the context, but don't compress or encode.
-2. Only add file content for .md or .py files.
+1. Increase chunking size to the max
+2. Use chain of thought prompting.
 
+
+#### Analysis:
+- Increasing the chunking size on the vector store did resolve the problem of not getting the correct context on the queries. I'm not sure how scalable that is though, particularly over large folders where you need to combine information from different places in the document.
+- It achieved the goal specified, so this experiment proved the chunking hypothesis.
+- I used better prompting techniques, such as chain of thought to give me step by step responses. But that did not improve reasoning ability. I had to point out the error, which is not good. For some questions, using few/many prompts back and forth is acceptable. For simple things like this, it is not.
+
+#### Conclusion:
+
+Although the experiment yielded fruitful results, the output is still not satisfying. Even with correct context, the model displayed a lack of reasoning ability. It was able to list all the components in the project, but failed to construct a rendering tree that outlines which component renders which succinctly. It is possible that using a later model version would resolve that.
+
+
+After this experiment, go through the advice here to see if it could be of use: [OpenAI Accuracy Optimization Guide](https://platform.openai.com/docs/guides/optimizing-llm-accuracy)
+
+The next logical step is fine-tuning. However, I am more inclined to just change the model, since I am not seeking improvement on a specific thing per se. This is more general reasoning. Although I have not tested other tasks, I assume that it would also leave much to be desired in this area and I don't want to fine-tune for every specific use-case. So I'll push off fine-tuning til later if possible.
+
+## Experiment 7 - Repeat Experiment 6 with later model
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+- Be able to upload a codebase and for it to know the all the python or js files in the codebase and put it in a list, reliably.
+- Be able to use the previous list to go into each file and do something with the file contents.
+
+#### Procedure:
+1. Substitute gpt-3.5-turbo w/ 4o or 4.
+
+
+#### Analysis:
+
+
+#### Conclusion:
+
+
+
+
+## Experiment 8 - Fine-tune model
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+
+#### Procedure:
+1. Prepare a dataset of 50+ examples and fine-tune a model to increase consistency
+
+#### Analysis:
+
+
+#### Conclusion:
+
+
+
+## Experiment 9 - Tune Retrieval + Fact-checking
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+
+#### Procedure:
+1. Tune the retrieval and add a fact-checking step to find hallucinations to achieve higher accuracy
+
+#### Analysis:
+
+#### Conclusion:
+
+
+## Experiment 10 - Retrain fine-tuned model
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+
+#### Procedure:
+1. Re-train the fine-tuned model on the new training examples which include our enhanced RAG inputs
 
 #### Analysis:
 

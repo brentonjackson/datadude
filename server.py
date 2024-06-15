@@ -207,7 +207,10 @@ def answer_message(sessionID: str):
     is_first_message = data.get("initMessage")
     context_text = create_context_text(context) # Create a concise context to send to OpenAI API
     
-    ai_handler: AIHandler = ai_handlers.get(threadID, get_ai_handler(DEFAULT_AI_HANDLER, sessionID, context))
+    if not ai_handlers.get(threadID):
+        # something is wrong. we should not be creating a new ai handler here.
+        return jsonify({'error': 'Internal server error. Failed to retrieve AI handler.'}), 500
+    ai_handler: AIHandler = ai_handlers.get(threadID)
     response = ai_handler.get_response(context_text, input=message, init=is_first_message)
 
     messagePool[sessionID]["threads"][threadID]["messages"].append({"user": message.strip()})

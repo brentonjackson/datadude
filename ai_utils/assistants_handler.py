@@ -70,7 +70,7 @@ class AssistantsHandler(AIHandler):
                     <id> is the id at the end of the name of the vector store attached to the current thread. 
                     All responses should be text. If not, send a url link to the asset instead of the asset itself.
                     When the user references 'this folder' or 'this project', assume they are referring to the information about
-                    the uploaded directory.
+                    the uploaded directory captured in the previously mentioned json file.
                     """,
                 # instructions=f"""You are DataDude, an expert filesystem detective. Answer queries very accurately, according to the files uploaded in the vector stores. To read the file contents, write Python code to:
                 #     1. Read the JSON File: Open the {self.sessionID}_context.json file and load the entire file object, not just the content key.
@@ -97,30 +97,47 @@ class AssistantsHandler(AIHandler):
             vector_store_list = my_vector_stores.data
             # could've used a for loop for this search, but this oneliner is nice
             vector_store = next((vector_store for vector_store in vector_store_list if vector_store.name == "Directory Context Files " + self.sessionID), None)
-            if vector_store:
+            if vector_store and vector_store.status != "expired":
                 self.vector_store_id = vector_store.id
        
         if self.vector_store_id == None:
             # Create vector store for the session/directory
-            vector_store = self.client.beta.vector_stores.create(name="Directory Context Files " + self.sessionID, expires_after={"days": 2, "anchor": "last_active_at"})
+            vector_store = self.client.beta.vector_stores.create(
+                name="Directory Context Files " + self.sessionID, 
+                expires_after={"days": 2, "anchor": "last_active_at"},
+            )
             self.vector_store_id = vector_store.id
         
         # Create temp file with data to upload to thread
         file_path = create_temp_file(json.dumps(sessionContext).encode('utf-8'), self.sessionID + "_context.json")
-        file_streams = [open(file_path, "rb")]
-        # Upload files to vector store
-        self.client.beta.vector_stores.file_batches.upload_and_poll(
-            vector_store_id=vector_store.id, files=file_streams
-        )
+        file_stream = open(file_path, "rb")
+        
+        # Delete old files uploaded attached to the vector store and uploaded
+        self.delete_session_files()
+        
+        # Create new file batch and upload to vector store
+        # It is better to create the file separately, then add to vector store and poll
+        # That way you have control over the chunking strategy and can play around with it.
+        uploaded_file = self.client.files.create(file=file_stream, purpose="assistants") # file size up to 512 MB
+        file_id = uploaded_file.id
+        self.client.files.wait_for_processing(id=file_id)
+        if uploaded_file.status == "error":
+            # Error
+            print(f"assistants_handler.py: Error: File failed to upload")
+            exit(1)
+        self.client.beta.vector_stores.files.create(self.vector_store_id, file_id=file_id, extra_body={
+            "chunking_strategy": {
+                "type": "static",
+                "static": {
+                    "max_chunk_size_tokens": 4096,
+                    "chunk_overlap_tokens": int(4096/2) # max overlap tokens
+                }
+            }
+        } )
+        self.client.beta.vector_stores.files.poll(vector_store_id=self.vector_store_id, file_id=file_id)
+
         # Create new thread and attach vector store to it
         thread = self.client.beta.threads.create(
-            # messages=[
-            #     {"role": "user", "content": "What info do you have on my files?",},
-            #     {"role": "assistant", "content": "I can tell you the name, full path, and the last modified/updated time of your files, based on the context you've given me.",},
-            #     {"role": "user", "content": "The lastModified key is the file's last updated time."},
-            #     {"role": "user", "content": "Write Python code to parse the uploaded data.",},
-            #     {"role": "assistant", "content": "I've used the code interpretor tool. This will help with subsequent queries.",},
-            # ]
             tool_resources={
                 "file_search":{
                     "vector_store_ids": [self.vector_store_id]
@@ -136,27 +153,6 @@ class AssistantsHandler(AIHandler):
         
         We don't care about context or an init message because the Assistant itself holds the context.
         """
-
-        # For now, let's assume the folder state didn't change since we instantiated the client.
-        # If it did, we can always start a new session. Sessions should be short-lived anyway.
-        #
-        #
-        # If we have context, let's update the context first so the assistant
-        # can use that as a knowledge base when answering queries.
-        # if context:
-        #     # add to vector store
-        #     file_path = create_temp_file(json.dumps(context).encode('utf-8'), self.sessionID + "_context_thread.json")
-        #     file_streams = [open(file_path, "rb")]
-        #     file_batch = self.client.beta.vector_stores.file_batches.upload_and_poll(
-        #         vector_store_id=self.vector_store_id, files=file_streams
-        #     )
-        #     print("thread file upload status: ", file_batch.status)
-        #     print("thread file count: ", file_batch.file_counts)
-        #     self.client.beta.assistants.update(
-        #         assistant_id=self.assistant.id,
-        #         tool_resources={"file_search": {"vector_store_ids": [self.vector_store_id]}},
-        #     )
-
 
         user_message = self.client.beta.threads.messages.create(
             thread_id=self.thread_id,
@@ -232,6 +228,18 @@ class AssistantsHandler(AIHandler):
             self.client.files.delete(file.id)
             print(f"deleted file {ctr}")
             ctr += 1
+    
+    def delete_session_files(self):
+        print("deleting old files...")
+        files = self.client.files.list(purpose="assistants")
+        ctr = 1
+        for file in files:
+            # delete it
+            file_session = file.filename.split("_")
+            if file_session[0] == self.sessionID:
+                self.client.files.delete(file.id)
+            ctr += 1
+        print("successfully deleted old files from vector store ✅")
 
     def get_thread_messages(self, thread_id: str):
         """
@@ -252,6 +260,5 @@ class AssistantsHandler(AIHandler):
             if message.content[0].type == 'image_file':
                 content.append(speaker + "File ID: " + message.content[0].image_file.file_id)
             
-        # content = [message.content[0].text.value for message in thread_messages.data]
         return content
 
