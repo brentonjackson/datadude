@@ -81,8 +81,7 @@ def send_chat_message(sessionID, threadID, message, initMessage=False):
     """
     url = 'http://127.0.0.1:5000/chat/' + sessionID
     
-    files = get_directory_structure()
-    body = {"threadID": threadID, "files": files, "message": message, "initMessage": initMessage}
+    body = {"threadID": threadID, "message": message, "initMessage": initMessage}
 
     # Validate token count
     json_str = json.dumps(body)

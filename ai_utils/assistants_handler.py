@@ -146,7 +146,7 @@ class AssistantsHandler(AIHandler):
         )
         self.thread_id = thread.id
 
-    def get_response(self, context: str, input: str, init=False):
+    def get_response(self, input: str):
         """
         Adds message to the thread and creates a Run.
         Runs indicate to an Assistant it should look at the messages in the Thread and take action: either by adding a single response, or using tools.

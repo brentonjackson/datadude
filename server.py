@@ -58,16 +58,6 @@ messagePool = {}
 app = Flask(__name__)
 
 ########## Helper Functions ###########
-def create_context_text(context):
-    """
-    Summarizes the context to keep it concise
-    """
-    files_summary = "\n".join([f"{file['name']} ({file['path']}, {file['size']} bytes)" for file in context['files']])
-    # git_info_summary = "\n".join([f"{key}: {value}" for key, value in context['git_info'].items()])
-
-    return f"Files:\n{files_summary}\n"
-    # \nGit Info:\n{git_info_summary}"
-
 def validate_sessionID(sessionID: str):
     """
     Returns False if given sessionID is invalid. Returns True if valid.
@@ -188,30 +178,11 @@ def answer_message(sessionID: str):
         messagePool[sessionID]["threads"][threadID]["messages"].append({"system": response})
         return jsonify({'message': response}), 200
     
-    # This isn't a big deal if not passed. Treat as optional
-    # Retrieve data related to the session
-    files = messagePool[sessionID]["files"]
-    # git_info = messagePool[sessionID]["git_info"]
-    if "files" in data:
-        files = data.get("files") # this is newer data
-        messagePool[sessionID]["files"] = [dict(file) for file in files]
-        # git_info = data.get("git_info")
-        # messagePool[str(sessionID)]["gitinfo"] = git_info
-        
-    # Gather context for AI
-    context = {
-        "files": files,
-        # "git_info": {item['key']: item['value'] for item in git_info}
-    }
-
-    is_first_message = data.get("initMessage")
-    context_text = create_context_text(context) # Create a concise context to send to OpenAI API
-    
     if not ai_handlers.get(threadID):
         # something is wrong. we should not be creating a new ai handler here.
         return jsonify({'error': 'Internal server error. Failed to retrieve AI handler.'}), 500
     ai_handler: AIHandler = ai_handlers.get(threadID)
-    response = ai_handler.get_response(context_text, input=message, init=is_first_message)
+    response = ai_handler.get_response( input=message)
 
     messagePool[sessionID]["threads"][threadID]["messages"].append({"user": message.strip()})
     messagePool[sessionID]["threads"][threadID]["messages"].append({"system": response})
