@@ -131,19 +131,15 @@ if __name__ == '__main__':
                 print("Datadude:\t" + response)
     else:
         # Interactive input
-        try:
-            print("You can start typing your queries. Press ^D (Ctrl+D) to exit.")
-            while True:
-                try:
-                    message = input("Me:\t\t")
-                    if first_message:
-                        response = send_chat_message(sessionID, threadID, message, initMessage=True)
-                        first_message = False
-                    else:
-                        response = send_chat_message(sessionID, threadID, message)
-                    print("Datadude:\t" + response)
-                except EOFError:
-                    print("\nExiting...")
-                    break
-        except KeyboardInterrupt:
-            print("\nExiting...")
+        print("You can start typing your queries. Press ^D (Ctrl+D) to exit.")
+        while True:
+            try:
+                message = input("Me:\t\t")
+                if first_message:
+                    response = send_chat_message(sessionID, threadID, message, initMessage=True)
+                    first_message = False
+                else:
+                    response = send_chat_message(sessionID, threadID, message)
+                print("Datadude:\t" + response)
+            except EOFError:
+                break

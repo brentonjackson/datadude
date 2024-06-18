@@ -86,7 +86,7 @@ class AssistantsHandler(AIHandler):
                 name="DataDude Directory Assistant",
                 tools=[{"type": "file_search"}, {"type": "code_interpreter"}],
                 model="gpt-3.5-turbo", # https://platform.openai.com/docs/models,
-                temperature=0.01 # makes things more deterministic, up to 2 makes things more random
+                temperature=0.0 # makes things more deterministic, up to 2 makes things more random
             )
 
 
@@ -211,26 +211,24 @@ class AssistantsHandler(AIHandler):
 
     def delete_vectore_stores(self):
         vector_stores = self.client.beta.vector_stores.list(order="desc", limit=100)
-        print("Num vector stores: ", len(vector_stores.data))
         ctr = 1
         for store in vector_stores:
             # delete it
             self.client.beta.vector_stores.delete(store.id)
-            print(f"deleted vector store {ctr}")
             ctr += 1
+        print(f"deleted {ctr-1} vector stores")
 
     def delete_files(self):
         files = self.client.files.list(purpose="assistants")
-        print("Num files: ", len(files.data))
         ctr = 1
         for file in files:
             # delete it
             self.client.files.delete(file.id)
-            print(f"deleted file {ctr}")
             ctr += 1
+        print(f"deleted {ctr-1} files")
+
     
     def delete_session_files(self):
-        print("deleting old files...")
         files = self.client.files.list(purpose="assistants")
         ctr = 1
         for file in files:
@@ -239,7 +237,7 @@ class AssistantsHandler(AIHandler):
             if file_session[0] == self.sessionID:
                 self.client.files.delete(file.id)
             ctr += 1
-        print("successfully deleted old files from vector store ✅")
+        print(f"deleted {ctr-1} old files")
 
     def get_thread_messages(self, thread_id: str):
         """
