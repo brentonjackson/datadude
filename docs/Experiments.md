@@ -206,9 +206,26 @@ The next logical step is fine-tuning. However, I am more inclined to just change
 #### Conclusion:
 
 
+## Experiment 8 - Put content in separate files and upload to vector store instead of including it all in one file. Let the model find the relevant files using its retrieval engine.
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+- Make retrieval and reasoning more reliable
+
+#### Procedure:
+1. Upload each file's content as a separate file.
+
+#### Analysis:
 
 
-## Experiment 8 - Fine-tune model
+#### Conclusion:
+
+
+
+## Experiment 9 - Fine-tune model
 
 #### Setup:
 - Flask server brokers messages between client/AI Assistant
@@ -226,7 +243,7 @@ The next logical step is fine-tuning. However, I am more inclined to just change
 
 
 
-## Experiment 9 - Tune Retrieval + Fact-checking
+## Experiment 10 - Tune Retrieval + Fact-checking
 
 #### Setup:
 - Flask server brokers messages between client/AI Assistant
@@ -242,7 +259,7 @@ The next logical step is fine-tuning. However, I am more inclined to just change
 #### Conclusion:
 
 
-## Experiment 10 - Retrain fine-tuned model
+## Experiment 11 - Retrain fine-tuned model
 
 #### Setup:
 - Flask server brokers messages between client/AI Assistant
@@ -252,6 +269,44 @@ The next logical step is fine-tuning. However, I am more inclined to just change
 
 #### Procedure:
 1. Re-train the fine-tuned model on the new training examples which include our enhanced RAG inputs
+
+#### Analysis:
+
+
+#### Conclusion:
+
+
+## Experiment 12 - Use streaming to get better user experience
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+Better UX. That's what ChatGPT does: WebSockets events to update the UI token by token. 
+The goal is to have some sort of loading indicator to see what's going on.
+
+#### Procedure:
+1. Set the stream option to true in the request to get results as they come. 
+
+#### Analysis:
+
+
+#### Conclusion:
+
+
+## Experiment 13 - Implement multiple assistants
+
+#### Setup:
+- Flask server brokers messages between client/AI Assistant
+- Flask client sends messages
+
+### Goal:
+Don't just have a 2-way conversation. Have multiple assistants. One of them can respond to the other, you can have assistants with opposite personalities, etc.
+Then try adding multiple users to the same thread.
+
+#### Procedure:
+1. Set the stream option to true in the request to get results as they come. 
 
 #### Analysis:
 
