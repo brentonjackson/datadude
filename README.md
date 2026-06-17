@@ -58,3 +58,10 @@ Ultimately, I left the project because it wasn't important enough to the busines
 
 As I left the project, I asked myself if there was something I could've done better. An obvious one was looking at the robot sooner, and troubleshooting all the hardware components first before even looking at the onboard computer. But outside of that, I asked why it took so much time looking at the system, and if I could've understood everything a lot faster. That thought birthed this tool.
 *(Yes, one skeptical thought you are right to have is "maybe you're just a noob". That's fair. Before starting this project, I did pick up a copy of the Art of Unix Programming to read over. But that's besides the point!)*
+
+<img src="PXL_20240520_193905829.jpg" alt="Custom Alt Text" width="300"> 
+<img src="PXL_20240521_112741928.jpg" alt="Custom Alt Text" width="300"> 
+<img src="PXL_20240521_113642247.jpg" alt="Custom Alt Text" width="300"> 
+<img src="PXL_20240525_151439749.jpg" alt="Custom Alt Text" width="300"> 
+
+
